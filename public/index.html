@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote of the Day</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .header {
+            background-color: #2874f0;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .quote-container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 50px auto;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+        .quote-box {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .quote {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .author {
+            font-size: 1.2em;
+            color: #555;
+        }
+        .refresh-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #2874f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .refresh-button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            background-color: #2874f0;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        .search-bar {
+            padding: 10px;
+            font-size: 1em;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Quote of the Day</h1>
+        <input type="text" class="search-bar" placeholder="Search by author name..." oninput="handleSearch(this.value)">
+    </div>
+    <div class="quote-container">
+        <div class="quotes"></div>
+        <button class="refresh-button" id="refreshButton" onclick="fetchQuote()">Get Another Quote</button>
+    </div>
+    <div class="footer">
+        <p>&copy; 2024 Quote of the Day | Contact: sagarsk36850@gmail.com</p>
+    </div>
+    <script>
+        function fetchQuote() {
+            fetch('/quote')
+                .then(response => response.json())
+                .then(data => {
+                    displayQuotes(data);
+                    document.getElementById('refreshButton').style.display = 'block';
+                });
+        }
+
+        function handleSearch(author) {
+            if (author.trim() === "") {
+                fetchQuote();
+            } else {
+                searchQuote(author);
+            }
+        }
+
+        function searchQuote(author) {
+            fetch(`/quote?author=${author}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayQuotes(data);
+                    document.getElementById('refreshButton').style.display = 'none';
+                });
+        }
+
+        function displayQuotes(quotes) {
+            const quotesContainer = document.querySelector('.quotes');
+            quotesContainer.innerHTML = '';
+            if (quotes.length > 0) {
+                quotes.forEach(quote => {
+                    const quoteBox = document.createElement('div');
+                    quoteBox.classList.add('quote-box');
+                    const quoteElement = document.createElement('div');
+                    quoteElement.classList.add('quote');
+                    quoteElement.textContent = quote.text;
+                    const authorElement = document.createElement('div');
+                    authorElement.classList.add('author');
+                    authorElement.textContent = `- ${quote.author}`;
+                    quoteBox.appendChild(quoteElement);
+                    quoteBox.appendChild(authorElement);
+                    quotesContainer.appendChild(quoteBox);
+                });
+            } else {
+                quotesContainer.innerHTML = '<div class="quote-box"><div class="quote">No quotes found</div></div>';
+            }
+        }
+
+        // Fetch the initial quote when the page loads
+        fetchQuote();
+    </script>
+</body>
+</html>
